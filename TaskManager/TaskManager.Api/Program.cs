@@ -5,6 +5,8 @@ using TaskManager.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAuthorization();
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -19,9 +21,9 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 });
 
 // Registramos identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationContext>();
+
 
 var app = builder.Build();
 
@@ -31,7 +33,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapIdentityApi<IdentityUser>();
 
 app.UseHttpsRedirection();
+
+//app.UseAuthentication();
+//app.UseAuthorization();
+
 
 app.Run();

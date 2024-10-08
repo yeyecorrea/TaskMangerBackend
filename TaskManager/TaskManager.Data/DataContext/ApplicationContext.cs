@@ -12,7 +12,7 @@ namespace TaskManager.Data.DataContext
 {
     public class ApplicationContext : IdentityDbContext
     {
-        public ApplicationContext(DbContextOptions options) : base(options)
+        public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
             
         }
