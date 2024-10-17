@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -62,6 +61,19 @@ namespace TaskManager.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_priorities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "states",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_states", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -215,6 +227,7 @@ namespace TaskManager.Data.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StateId = table.Column<int>(type: "int", nullable: false),
                     PriorityId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -232,6 +245,12 @@ namespace TaskManager.Data.Migrations
                         name: "FK_taskeds_priorities_PriorityId",
                         column: x => x.PriorityId,
                         principalTable: "priorities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_taskeds_states_StateId",
+                        column: x => x.StateId,
+                        principalTable: "states",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -260,8 +279,7 @@ namespace TaskManager.Data.Migrations
                         name: "FK_comments_taskeds_TaskedId",
                         column: x => x.TaskedId,
                         principalTable: "taskeds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -290,26 +308,6 @@ namespace TaskManager.Data.Migrations
                         column: x => x.TaskedId,
                         principalTable: "taskeds",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "states",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TaskedId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_states", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_states_taskeds_TaskedId",
-                        column: x => x.TaskedId,
-                        principalTable: "taskeds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -403,14 +401,14 @@ namespace TaskManager.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_states_TaskedId",
-                table: "states",
-                column: "TaskedId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_taskeds_PriorityId",
                 table: "taskeds",
                 column: "PriorityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_taskeds_StateId",
+                table: "taskeds",
+                column: "StateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_taskeds_UserId",
@@ -456,9 +454,6 @@ namespace TaskManager.Data.Migrations
                 name: "notifications");
 
             migrationBuilder.DropTable(
-                name: "states");
-
-            migrationBuilder.DropTable(
                 name: "taskedTags");
 
             migrationBuilder.DropTable(
@@ -475,6 +470,9 @@ namespace TaskManager.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "priorities");
+
+            migrationBuilder.DropTable(
+                name: "states");
         }
     }
 }

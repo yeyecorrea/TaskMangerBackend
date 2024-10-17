@@ -12,8 +12,8 @@ using TaskManager.Data.DataContext;
 namespace TaskManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20241007211636_InitialDatabase")]
-    partial class InitialDatabase
+    [Migration("20241017222344_changeDataTypeGuid")]
+    partial class changeDataTypeGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -241,15 +241,17 @@ namespace TaskManager.Data.Migrations
                     b.Property<int>("TaskedId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TaskedId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("comments");
                 });
@@ -351,12 +353,7 @@ namespace TaskManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TaskedId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TaskedId");
 
                     b.ToTable("states");
                 });
@@ -399,19 +396,26 @@ namespace TaskManager.Data.Migrations
                     b.Property<int>("PriorityId")
                         .HasColumnType("int");
 
+                    b.Property<int>("StateId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PriorityId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("StateId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("taskeds");
                 });
@@ -500,9 +504,7 @@ namespace TaskManager.Data.Migrations
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Tasked");
 
@@ -539,17 +541,6 @@ namespace TaskManager.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManager.Domain.Entities.State", b =>
-                {
-                    b.HasOne("TaskManager.Domain.Entities.Tasked", "Tasked")
-                        .WithMany("State")
-                        .HasForeignKey("TaskedId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tasked");
-                });
-
             modelBuilder.Entity("TaskManager.Domain.Entities.Tasked", b =>
                 {
                     b.HasOne("TaskManager.Domain.Entities.Priority", "Priority")
@@ -558,13 +549,19 @@ namespace TaskManager.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("TaskManager.Domain.Entities.State", "State")
+                        .WithMany("Taskeds")
+                        .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
+
                     b.Navigation("Priority");
+
+                    b.Navigation("State");
 
                     b.Navigation("User");
                 });
@@ -593,6 +590,11 @@ namespace TaskManager.Data.Migrations
                     b.Navigation("taskeds");
                 });
 
+            modelBuilder.Entity("TaskManager.Domain.Entities.State", b =>
+                {
+                    b.Navigation("Taskeds");
+                });
+
             modelBuilder.Entity("TaskManager.Domain.Entities.Tag", b =>
                 {
                     b.Navigation("TaskedTags");
@@ -601,8 +603,6 @@ namespace TaskManager.Data.Migrations
             modelBuilder.Entity("TaskManager.Domain.Entities.Tasked", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("State");
 
                     b.Navigation("TaskedTags");
                 });

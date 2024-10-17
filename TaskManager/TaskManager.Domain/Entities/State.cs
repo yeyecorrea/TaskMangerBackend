@@ -12,7 +12,6 @@ namespace TaskManager.Domain.Entities
         public string Name { get; set; }
 
         // Relacion
-        public int TaskedId {  get; set; }
-        public Tasked Tasked { get; set; }
+        public List<Tasked> Taskeds { get; set;} = new List<Tasked>();
     }
 }
